@@ -23,7 +23,6 @@ try:
         result = chardet.detect(f.read())
     encoding = result["encoding"]
     df = pd.read_csv(csv_path, encoding=encoding)
-    st.success(f"Loaded {len(df)} movie entries from your dataset ✅")
 except Exception as e:
     st.error(f"Error loading CSV: {e}")
     st.stop()
@@ -36,7 +35,6 @@ df["combined"] = df.apply(
 loader = DataFrameLoader(df, page_content_column="combined")
 docs = loader.load()
 
-st.info("Creating movie embeddings (takes ~30s on first run)...")
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
 vectordb = Chroma.from_documents(
@@ -57,7 +55,7 @@ model = RetrievalQA.from_chain_type(llm=llm, retriever=retriever, chain_type="st
 
 st.success("RAG model is ready! Ask about 2025 movies 🎥")
 
-query = st.text_input("Ask something about a 2025 movie (e.g., 'fun fact about Dune Part Two')")
+query = st.text_input("Ask something about a 2025 movie (e.g., 'fun fact about Superman')")
 
 if st.button("Ask"):
     if query.strip():
@@ -70,8 +68,6 @@ if st.button("Ask"):
 
 with st.expander("ℹ️ Model Limitations"):
     st.markdown("""
-    - Trained only on the CSV data you provided.
+    - Trained only on the CSV data provided.
     - Answers are limited to 2025's popular movies.
-    - No internet connection or live updates.
-    - Uses **FLAN-T5** + **MiniLM embeddings** for local RAG inference.
     """)
